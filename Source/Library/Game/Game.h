@@ -19,5 +19,19 @@ HRESULT CompileShaderFromFile(
 
 struct SimpleVertex
 {
-	XMFLOAT3 Pos;
+	XMFLOAT3 Position;
+	XMFLOAT2 Material;
+};
+
+struct CBView
+{
+	XMMATRIX View;
+};
+struct CBWorld
+{
+	XMMATRIX World;
+};
+struct CBProjection
+{
+	XMMATRIX Projection;
 };
