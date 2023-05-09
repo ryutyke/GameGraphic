@@ -1,37 +1,25 @@
-﻿#pragma once
+#pragma once
 
 #include "Common.h"
 
-HRESULT InitWindow(_In_ HINSTANCE hInstance, _In_ INT nCmdShow);
+#include "Window/MainWindow.h"
+#include "Renderer/Renderer.h"
 
-HRESULT InitDevice();
-
-void CleanupDevice();
-
-void Render();
-
-HRESULT CompileShaderFromFile(
-	_In_	PCWSTR		pszFileName,	// FileName
-	_In_	PCSTR		pszEntryPoint,	// EntryPoint
-	_In_	PCSTR		pszShaderModel, // Shader target 
-	_Outptr_ ID3DBlob** ppBlobOut		// ID3DBlob out	
-);
-
-struct SimpleVertex
+class Game final
 {
-	XMFLOAT3 Position;
-	XMFLOAT2 Material;
-};
+public:
+	Game(_In_ PCWSTR pszGameName);
+	~Game() = default;
 
-struct CBView
-{
-	XMMATRIX View;
-};
-struct CBWorld
-{
-	XMMATRIX World;
-};
-struct CBProjection
-{
-	XMMATRIX Projection;
+	HRESULT Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow);
+	INT Run();
+
+	PCWSTR GetGameName() const;
+	std::unique_ptr<MainWindow>& GetWindow();
+	std::unique_ptr<Renderer>& GetRenderer();
+
+private:
+	PCWSTR m_pszGameName;
+	std::unique_ptr<MainWindow> m_mainWindow;
+	std::unique_ptr<Renderer> m_renderer;
 };
