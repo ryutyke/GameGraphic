@@ -5,11 +5,53 @@
 #include "Shader/PixelShader.h"
 #include "Shader/VertexShader.h"
 
+#include "Texture/Texture.h"
+
 #include "Renderer/DataTypes.h"
 
+static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
+
+struct BasicMeshEntry {
+	BasicMeshEntry()
+		: uNumIndices(0u)
+		, uBaseVertex(0u)
+		, uBaseIndex(0u)
+		, uMaterialIndex(INVALID_MATERIAL)
+	{}
+	UINT uNumIndices;
+	UINT uBaseVertex;
+	UINT uBaseIndex;
+	UINT uMaterialIndex;
+};
 
 class Renderable
 {
+protected:
+	const virtual SimpleVertex* getVertices() const = 0;
+	virtual const WORD* getIndices() const = 0;
+
+	HRESULT initialize(
+		_In_ ID3D11Device* pDevice,
+		_In_ ID3D11DeviceContext* pImmediateContext
+	);
+
+	ComPtr<ID3D11Buffer> m_vertexBuffer;
+	ComPtr<ID3D11Buffer> m_indexBuffer;
+	ComPtr<ID3D11Buffer> m_cbChangeEveryFrame;
+
+	std::vector<BasicMeshEntry> m_aMeshes;
+	std::vector<Material> m_aMaterials;
+	/*ComPtr<ID3D11ShaderResourceView> m_textureRV;
+	ComPtr<ID3D11SamplerState> m_samplerLinear;*/
+
+	std::shared_ptr<VertexShader> m_vertexShader;
+	std::shared_ptr<PixelShader> m_pixelShader;
+	std::filesystem::path m_textureFilePath;
+
+	XMFLOAT4 m_outputColor;
+	XMMATRIX m_world;
+	BOOL m_bHasTexture;
+
 public:
 	Renderable(_In_ const std::filesystem::path& textureFilePath);
 	Renderable(_In_ const XMFLOAT4& outputColor);
@@ -33,8 +75,6 @@ public:
 	ComPtr<ID3D11Buffer>& GetConstantBuffer();
 
 	const XMMATRIX& GetWorldMatrix() const;
-	ComPtr<ID3D11ShaderResourceView>& GetTextureResourceView();
-	ComPtr<ID3D11SamplerState>& GetSamplerState();
 	const XMFLOAT4& GetOutputColor() const;
 	BOOL HasTexture() const;
 
@@ -48,26 +88,9 @@ public:
 	virtual UINT GetNumVertices() const = 0;
 	virtual UINT GetNumIndices() const = 0;
 
-protected:
-	const virtual SimpleVertex* getVertices() const = 0;
-	virtual const WORD* getIndices() const = 0;
+	const BasicMeshEntry& GetMesh(UINT uIndex);
+	const Material& GetMaterial(UINT uIndex);
 
-	HRESULT initialize(
-		_In_ ID3D11Device* pDevice, 
-		_In_ ID3D11DeviceContext* pImmediateContext
-	);
-
-	ComPtr<ID3D11Buffer> m_vertexBuffer;
-	ComPtr<ID3D11Buffer> m_indexBuffer;
-	ComPtr<ID3D11Buffer> m_cbChangeEveryFrame;
-	ComPtr<ID3D11ShaderResourceView> m_textureRV;
-	ComPtr<ID3D11SamplerState> m_samplerLinear;
-
-	std::shared_ptr<VertexShader> m_vertexShader;
-	std::shared_ptr<PixelShader> m_pixelShader;
-	std::filesystem::path m_textureFilePath;
-
-	XMFLOAT4 m_outputColor;
-	XMMATRIX m_world;
-	BOOL m_bHasTexture;
+	UINT GetNumMeshes();
+	UINT GetNumMaterials();
 };

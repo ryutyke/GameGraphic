@@ -372,12 +372,45 @@ void Renderer::Render()
         m_immediateContext->PSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
         m_immediateContext->PSSetConstantBuffers(2, 1, it->second->GetConstantBuffer().GetAddressOf());
         m_immediateContext->PSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
-        if (it->second->HasTexture())
+
+        for (UINT i = 0u; i < it->second->GetNumMeshes(); ++i) 
         {
-            m_immediateContext->PSSetShaderResources(0, 1, it->second->GetTextureResourceView().GetAddressOf());
-            m_immediateContext->PSSetSamplers(0, 1, it->second->GetSamplerState().GetAddressOf());
+            UINT uMaterialIndex = it->second->GetMesh(i).uMaterialIndex;
+
+            assert(uMaterialIndex < it->second->GetNumMaterials());
+            // Render a triangle
+            if (it->second->GetMaterial(uMaterialIndex).pDiffuse)
+            {
+                m_immediateContext->PSSetShaderResources(
+                    0u,
+                    1u,
+                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetTextureResourceView().GetAddressOf()
+                );
+                m_immediateContext->PSSetSamplers(
+                    0u,
+                    1u,
+                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetSamplerState().GetAddressOf()
+                );
+            } 
+            if (it->second->GetMaterial(uMaterialIndex).pSpecular)
+            { 
+                m_immediateContext->PSSetShaderResources(
+                    1u,
+                    1u,
+                    it->second->GetMaterial(uMaterialIndex).pSpecular->GetTextureResourceView().GetAddressOf()
+                ); 
+                m_immediateContext->PSSetSamplers(
+                    1u,
+                    1u,
+                    it->second->GetMaterial(uMaterialIndex).pSpecular->GetSamplerState().GetAddressOf()
+                ); 
+            }
+            m_immediateContext->DrawIndexed(
+                it->second->GetMesh(i).uNumIndices,
+                it->second->GetMesh(i).uBaseIndex,
+                static_cast <INT>(it->second->GetMesh(i).uBaseVertex)
+            );
         }
-        m_immediateContext->DrawIndexed(it->second->GetNumIndices(), 0u, 0);   // 36 vertices needed for 12 triangles in a triangle list
     }
 
     // Present the information rendered to the back buffer to the front buffer (the screen)

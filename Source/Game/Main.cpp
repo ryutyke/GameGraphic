@@ -3,12 +3,13 @@
 #include "Cube/Cube.h"
 #include "Cube/RotatingCube.h"
 #include "Light/RotatingPointLight.h"
+#include "Model/Model.h"
 #include "Game/Game.h"
 
 INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ INT nCmdShow)
 {
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(L"GGP : Lighting Cube with OOD");
+	std::unique_ptr<Game> game = std::make_unique<Game>(L"2019102090 류승현 LAB 08");
 
     // Phong Lighting Shaders
     std::shared_ptr<VertexShader> vertexShader = std::make_shared<VertexShader>(L"Shaders/Shader.fx", "VS", "vs_5_0");
@@ -63,15 +64,23 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"LightCube1", L"PSSolid")))
         return 0;
 
-    // Phong Cube
-    std::shared_ptr<Cube> phongCube = std::make_shared<Cube>(L"seafloor.dds");
-    if (FAILED(game->GetRenderer()->AddRenderable(L"PhongCube", phongCube)))
-        return 0;
-    if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"PhongCube", L"VS")))
-        return 0;
-    if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"PhongCube", L"PS")))
-        return 0;
+    //// Phong Cube
+    //std::shared_ptr<Cube> phongCube = std::make_shared<Cube>(L"seafloor.dds");
+    //if (FAILED(game->GetRenderer()->AddRenderable(L"PhongCube", phongCube)))
+    //    return 0;
+    //if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"PhongCube", L"VS")))
+    //    return 0;
+    //if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"PhongCube", L"PS")))
+    //    return 0;
 
+    std::shared_ptr<Model> spider = std::make_shared<Model>(L"../../Data/Stone/Stone.obj");
+    spider->Scale(0.5f, 0.5f, 0.5f);
+    if (FAILED(game->GetRenderer()->AddRenderable(L"Spider", spider)))
+        return 0;
+    if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"Spider", L"VS")))
+        return 0;
+    if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"Spider", L"PS")))
+        return 0;
 
     if (FAILED(game->Initialize(hInstance, nCmdShow)))
         return 0;

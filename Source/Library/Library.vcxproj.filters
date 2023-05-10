@@ -55,12 +55,15 @@
     <Filter Include="헤더 파일\Renderer">
       <UniqueIdentifier>{ee2efc68-0a89-4ba2-97fe-a1a30e5b697b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Model">
+      <UniqueIdentifier>{71ae5962-4b58-4763-b3e1-716cfa9a3bc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Model">
+      <UniqueIdentifier>{338da780-9f13-4530-b551-3e8cbb88d868}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSTextureLoader11.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Game\Game.h">
@@ -102,6 +105,12 @@
     <ClInclude Include="Window\BaseWindow.h">
       <Filter>헤더 파일\Window</Filter>
     </ClInclude>
+    <ClInclude Include="Texture\WICTextureLoader.h">
+      <Filter>헤더 파일\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Model.h">
+      <Filter>헤더 파일\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DDSTextureLoader11.cpp">
@@ -136,6 +145,15 @@
     </ClCompile>
     <ClCompile Include="Window\MainWindow.cpp">
       <Filter>소스 파일\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\Texture.cpp">
+      <Filter>소스 파일\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\WICTextureLoader.cpp">
+      <Filter>소스 파일\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\Model.cpp">
+      <Filter>소스 파일\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

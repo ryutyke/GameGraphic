@@ -13,9 +13,9 @@
   <ItemGroup>
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="DDSTextureLoader11.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Light\PointLight.h" />
+    <ClInclude Include="Model\Model.h" />
     <ClInclude Include="Renderer\DataTypes.h" />
     <ClInclude Include="Renderer\Renderable.h" />
     <ClInclude Include="Renderer\Renderer.h" />
@@ -24,6 +24,7 @@
     <ClInclude Include="Shader\VertexShader.h" />
     <ClInclude Include="Texture\DDSTextureLoader11.h" />
     <ClInclude Include="Texture\Texture.h" />
+    <ClInclude Include="Texture\WICTextureLoader.h" />
     <ClInclude Include="Window\BaseWindow.h" />
     <ClInclude Include="Window\MainWindow.h" />
   </ItemGroup>
@@ -32,12 +33,15 @@
     <ClCompile Include="DDSTextureLoader11.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Light\PointLight.cpp" />
+    <ClCompile Include="Model\Model.cpp" />
     <ClCompile Include="Renderer\Renderable.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Shader\PixelShader.cpp" />
     <ClCompile Include="Shader\Shader.cpp" />
     <ClCompile Include="Shader\VertexShader.cpp" />
     <ClCompile Include="Texture\DDSTextureLoader11.cpp" />
+    <ClCompile Include="Texture\Texture.cpp" />
+    <ClCompile Include="Texture\WICTextureLoader.cpp" />
     <ClCompile Include="Window\MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>

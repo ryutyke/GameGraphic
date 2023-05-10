@@ -1,7 +1,9 @@
 #define NUM_LIGHTS (2)
 
 Texture2D txDiffuse : register(t0);
+Texture2D txSpecular : register(t1);
 SamplerState samLinear : register(s0);
+SamplerState samSpecularLinear : register(s1);
 
 cbuffer cbChangeOnCamaraMovement : register(b0)
 {
@@ -59,9 +61,9 @@ PS_INPUT VS(VS_INPUT input)
 
 float4 PS(PS_INPUT input) : SV_Target
 {
-
 	float3 viewDirection = normalize(CameraPosition.xyz - input.WorldPosition);
 	float4 color = txDiffuse.Sample(samLinear, input.TexCoord);
+	float4 specularColor = txSpecular.Sample(samSpecularLinear, input.TexCoord);
 
 	float3 ambient = 0;
 	float3 diffuse = 0;
@@ -71,7 +73,7 @@ float4 PS(PS_INPUT input) : SV_Target
 	{
 		float3 LightDirection = normalize(input.WorldPosition - LightPositions[i].xyz);
 		diffuse += (max(dot(input.Normal, -LightDirection), 0.0f) * LightColors[i]).xyz;
-		specular += (pow(max(dot(reflect(LightDirection, input.Normal), viewDirection), 0.0f), 4.0f) * LightColors[i]).rgb;
+		specular += (pow(max(dot(reflect(LightDirection, input.Normal), viewDirection), 0.0f), 4.0f) * LightColors[i] * specularColor).rgb;
 		ambient += float3(0.1f, 0.1f, 0.1f) * LightColors[i].rgb;
 	}
 
