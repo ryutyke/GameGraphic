@@ -43,7 +43,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARA
         PostQuitMessage(0);
         return 0;
 
-   case WM_INPUT:
+   /*case WM_INPUT:
    {
        UINT dataSize = 0u;
 
@@ -88,7 +88,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARA
            }
        }
        return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-   }
+   }*/
 
 
    case WM_KEYDOWN:
@@ -110,14 +110,14 @@ LRESULT MainWindow::HandleMessage(_In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARA
        case 'D':
            m_directions.bRight = TRUE;
            break;
-       case 'e':
-       case 'E':
-           m_directions.bUp = TRUE;
-           break;
-       case 'q':
-       case 'Q':
-           m_directions.bDown = TRUE;
-           break;
+       //case 'e':
+       //case 'E':
+       //    m_directions.bUp = TRUE;
+       //    break;
+       //case 'q':
+       //case 'Q':
+       //    m_directions.bDown = TRUE;
+       //    break;
        default:
            break;
        }
@@ -141,26 +141,26 @@ LRESULT MainWindow::HandleMessage(_In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARA
        case 'D':
            m_directions.bRight = FALSE;
            break;
-       case 'e':
-       case 'E':
-           m_directions.bUp = FALSE;
-           break;
-       case 'q':
-       case 'Q':
-           m_directions.bDown = FALSE;
-           break;
+       //case 'e':
+       //case 'E':
+       //    m_directions.bUp = FALSE;
+       //    break;
+       //case 'q':
+       //case 'Q':
+       //    m_directions.bDown = FALSE;
+       //    break;
 
        default:
            break;
        }
        break;
 
-   case WM_RBUTTONDOWN:
+   /*case WM_RBUTTONDOWN:
        m_bMouseRightClick = TRUE;
        break;
    case WM_RBUTTONUP:
        m_bMouseRightClick = FALSE;
-       break;
+       break;*/
 
     default:
         return DefWindowProc(m_hWnd, uMsg, wParam, lParam);

@@ -8,6 +8,7 @@
 #include "Shader/VertexShader.h"
 #include "Shader/PixelShader.h"
 #include "Camera/Camera.h"
+#include "Character/Character.h"
 
 class Renderer
 {
@@ -29,6 +30,8 @@ public:
 	HRESULT SetPixelShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_ PCWSTR pszPixelShaderName);
 
 	D3D_DRIVER_TYPE GetDriverType() const;
+
+	void SetCharacter(_In_ const std::shared_ptr<Character>& character);
 
 private:
 	D3D_DRIVER_TYPE m_driverType;
@@ -53,4 +56,6 @@ private:
 	std::shared_ptr<PointLight> m_aPointLights[NUM_LIGHTS];
 	std::unordered_map<PCWSTR, std::shared_ptr<VertexShader>> m_vertexShaders;
 	std::unordered_map<PCWSTR, std::shared_ptr<PixelShader>> m_pixelShaders;
+
+	std::shared_ptr<Character> m_character;
 };

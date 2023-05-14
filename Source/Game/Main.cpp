@@ -34,7 +34,7 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     // Point Light Cube
     std::shared_ptr<Cube> lightCube = std::make_shared<Cube>(color);
-    lightCube->Translate(XMVectorSet(-5.77f, 5.77f, -5.77f, 0.0f));
+    lightCube->Translate(XMVectorSet(-5.77f, 9.77f, -5.77f, 0.0f));
     if (FAILED(game->GetRenderer()->AddRenderable(L"LightCube", lightCube)))
         return 0;
     if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"LightCube", L"VS")))
@@ -42,39 +42,9 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"LightCube", L"PSSolid")))
         return 0;
 
-    /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-    TODO1: Rotating Point Light
-    -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-    XMFLOAT4 color1;
-    XMStoreFloat4(&color1, Colors::IndianRed);
-    std::shared_ptr<RotatingPointLight> pointLight1 = std::make_shared<RotatingPointLight>(XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f), color1);
-
-    if (FAILED(game->GetRenderer()->AddPointLight(1u, pointLight1)))
-        return 0;
-
-    /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-    TODO2: Rotating Point Light Cube
-    -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-    std::shared_ptr<RotatingCube> lightCube1 = std::make_shared<RotatingCube>(color1);
-    lightCube1->Translate(XMVectorSet(0.0f, 0.0f, -5.0f, 1.0f));
-    if (FAILED(game->GetRenderer()->AddRenderable(L"LightCube1", lightCube1)))   
-        return 0;
-    if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"LightCube1", L"VS")))
-        return 0;
-    if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"LightCube1", L"PSSolid")))
-        return 0;
-
-    //// Phong Cube
-    //std::shared_ptr<Cube> phongCube = std::make_shared<Cube>(L"seafloor.dds");
-    //if (FAILED(game->GetRenderer()->AddRenderable(L"PhongCube", phongCube)))
-    //    return 0;
-    //if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"PhongCube", L"VS")))
-    //    return 0;
-    //if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"PhongCube", L"PS")))
-    //    return 0;
-
-    std::shared_ptr<Model> spider = std::make_shared<Model>(L"../../Data/Stone/Stone.obj");
+    std::shared_ptr<Character> spider = std::make_shared<Character>(L"../../Data/Stone/Stone.obj");
     spider->Scale(0.5f, 0.5f, 0.5f);
+    game->GetRenderer()->SetCharacter(spider);
     if (FAILED(game->GetRenderer()->AddRenderable(L"Spider", spider)))
         return 0;
     if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"Spider", L"VS")))

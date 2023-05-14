@@ -1,6 +1,6 @@
 #pragma once
 
-#define NUM_LIGHTS (2)
+#define NUM_LIGHTS (1)
 
 #include "Common.h"
 

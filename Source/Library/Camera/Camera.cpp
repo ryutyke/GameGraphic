@@ -3,7 +3,7 @@
 Camera::Camera(_In_ const XMVECTOR& position)
 	:m_cbChangeOnCameraMovement()
     , m_yaw(0.0f)
-    , m_pitch(0.0f)
+    , m_pitch(0.6f)
     , m_moveLeftRight(0.0f)
     , m_moveBackForward(0.0f)
     , m_moveUpDown(0.0f)
@@ -12,8 +12,9 @@ Camera::Camera(_In_ const XMVECTOR& position)
     , m_cameraForward(DEFAULT_FORWARD)
     , m_cameraRight(DEFAULT_RIGHT)
     , m_cameraUp(DEFAULT_UP)
+    , m_target(DEFAULT_TARGET)
     , m_eye(position)
-    , m_at(position + m_cameraForward)
+    , m_at(position + m_target)
     , m_up(m_cameraUp)
     , m_rotation()
     , m_view(XMMatrixLookAtLH(m_eye, m_at, m_up))
@@ -67,7 +68,7 @@ void Camera::HandleInput(_In_ const InputDirections& directions, _In_ const Mous
         m_moveLeftRight += m_movementSpeed * deltaTime;
     }
 
-    if (directions.bUp)
+    /*if (directions.bUp)
     {
         m_moveUpDown += m_movementSpeed * deltaTime;
     }
@@ -84,7 +85,7 @@ void Camera::HandleInput(_In_ const InputDirections& directions, _In_ const Mous
             m_yaw += static_cast<FLOAT>(mouseRelativeMovement.X) * m_rotationSpeed;
             m_pitch += static_cast<FLOAT>(mouseRelativeMovement.Y) * m_rotationSpeed;
         }
-    }
+    }*/
 }
 
 HRESULT Camera::Initialize(_In_  ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext)
@@ -116,9 +117,9 @@ void Camera::Update(_In_ FLOAT deltaTime)
     m_cameraUp = XMVector3TransformCoord(DEFAULT_UP, rotateYTempMatrix);
     m_cameraForward = XMVector3TransformCoord(DEFAULT_FORWARD, rotateYTempMatrix);
 
-    m_eye += m_moveLeftRight * m_cameraRight;
-    m_eye += m_moveBackForward * m_cameraForward;
-    m_eye += m_moveUpDown * m_cameraUp;
+    m_eye += m_moveLeftRight * DEFAULT_RIGHT;
+    m_eye += m_moveBackForward * DEFAULT_FORWARD;
+    m_eye += m_moveUpDown * DEFAULT_UP;
 
     m_moveLeftRight = 0.0f;
     m_moveBackForward = 0.0f;

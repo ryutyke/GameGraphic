@@ -180,3 +180,10 @@ UINT Renderable::GetNumMaterials()
 {
 	return m_aMaterials.size();
 }
+
+void Renderable::RotateInObjectCoordinate(_In_ FLOAT angle, _In_ const XMVECTOR& offset)
+{
+	m_world *= XMMatrixTranslationFromVector(-offset);
+	m_world *= XMMatrixRotationY(angle);
+	m_world *= XMMatrixTranslationFromVector(offset);
+}

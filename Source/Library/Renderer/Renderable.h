@@ -93,4 +93,6 @@ public:
 
 	UINT GetNumMeshes();
 	UINT GetNumMaterials();
+
+	void RotateInObjectCoordinate(_In_ FLOAT angle, _In_ const XMVECTOR& offset);
 };

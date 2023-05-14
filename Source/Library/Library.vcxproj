@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera\Camera.h" />
+    <ClInclude Include="Character\Character.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Light\PointLight.h" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="Character\Character.cpp" />
     <ClCompile Include="DDSTextureLoader11.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Light\PointLight.cpp" />

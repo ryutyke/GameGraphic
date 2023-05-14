@@ -12,12 +12,13 @@ Renderer::Renderer()
     , m_renderTargetView()
     , m_depthStencil()
     , m_depthStencilView()
-    , m_camera(XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f))
+    , m_camera(XMVectorSet(0.0f, 20.0f, -25.0f, 0.0f))
     , m_projection()
     , m_renderables()
     , m_aPointLights()
     , m_vertexShaders()
     , m_pixelShaders()
+    , m_character()
 {
 }
 
@@ -302,6 +303,7 @@ HRESULT Renderer::AddPixelShader(_In_ PCWSTR pszPixelShaderName, _In_ const std:
 void Renderer::HandleInput(_In_ const InputDirections& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, const BOOL& mouseRightClick, _In_ FLOAT deltaTime)
 {
     m_camera.HandleInput(directions, mouseRelativeMovement, mouseRightClick, deltaTime);
+    m_character->HandleInput(directions, deltaTime);
 }
 
 void Renderer::Update(_In_ FLOAT deltaTime)
@@ -317,6 +319,8 @@ void Renderer::Update(_In_ FLOAT deltaTime)
     }
 
     m_camera.Update(deltaTime);
+    
+    m_character->Update(deltaTime);
 }
 
 void Renderer::Render()
@@ -444,4 +448,9 @@ HRESULT Renderer::SetPixelShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_
 D3D_DRIVER_TYPE Renderer::GetDriverType() const
 {
     return m_driverType;
+}
+
+void Renderer::SetCharacter(_In_ const std::shared_ptr<Character>& character)
+{
+    m_character = character;
 }

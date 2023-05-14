@@ -26,6 +26,8 @@ protected:
 	static constexpr const XMVECTORF32 DEFAULT_RIGHT = { 1.0f, 0.0f, 0.0f, 0.0f };
 	static constexpr const XMVECTORF32 DEFAULT_UP = { 0.0f, 1.0f, 0.0f, 0.0f };
 
+	static constexpr const XMVECTORF32 DEFAULT_TARGET = { 0.0f, -1.0f, 2.0f, 0.0f };
+
 	ComPtr<ID3D11Buffer> m_cbChangeOnCameraMovement;
 
 	FLOAT m_yaw;
@@ -41,6 +43,8 @@ protected:
 	XMVECTOR m_cameraForward;
 	XMVECTOR m_cameraRight;
 	XMVECTOR m_cameraUp;
+
+	XMVECTOR m_target;
 
 	XMVECTOR m_eye;
 	XMVECTOR m_at;
