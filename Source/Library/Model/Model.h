@@ -3,9 +3,9 @@
 #include "Common.h"
 #include "Renderer/Renderable.h"
 
-#include "assimp/Importer.hpp" // C++ importer interface
-#include "assimp/scene.h" // output data structure
-#include "assimp/postprocess.h" // post processing flags
+struct aiScene;
+struct aiMesh;
+struct aiMaterial;
 
 class Model : public Renderable
 {

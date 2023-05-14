@@ -1,5 +1,9 @@
 #include "Model/Model.h"
 
+#include "assimp/Importer.hpp" // C++ importer interface
+#include "assimp/scene.h" // output data structure
+#include "assimp/postprocess.h" // post processing flags
+
 Model::Model(_In_ const std::filesystem::path& filePath)
     : Renderable(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f))
     , m_filePath(filePath)

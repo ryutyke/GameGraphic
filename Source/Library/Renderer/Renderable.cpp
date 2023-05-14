@@ -65,6 +65,7 @@ HRESULT Renderable::initialize(
 	if (FAILED(hr))
 		return hr;
 
+	bd.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
 	bd.ByteWidth = sizeof(CBChangeEveryFrame);
 	hr = pDevice->CreateBuffer(&bd, nullptr, m_cbChangeEveryFrame.GetAddressOf());
 	if (FAILED(hr))
