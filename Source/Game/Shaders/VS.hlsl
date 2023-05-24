@@ -1,1 +1,1 @@
-#include "Shader.fx"
+#include "SkinningShader.fx"

@@ -1,22 +1,5 @@
 #include "Renderer/Renderable.h"
 
-#include "Texture/DDSTextureLoader11.h"
-
-Renderable::Renderable(_In_ const std::filesystem::path& textureFilePath)
-	: m_vertexBuffer()
-	, m_indexBuffer()
-	, m_cbChangeEveryFrame()
-	, m_aMeshes()
-	, m_aMaterials()
-	, m_vertexShader()
-	, m_pixelShader()
-	, m_textureFilePath(textureFilePath)
-	, m_outputColor(XMFLOAT4(1.0f, 1.0f, 1.0f,1.0f))
-	, m_world(XMMatrixIdentity())
-	, m_bHasTexture(TRUE)
-{
-}
-
 Renderable::Renderable(_In_ const XMFLOAT4& outputColor)
 	: m_vertexBuffer()
 	, m_indexBuffer()
@@ -25,10 +8,8 @@ Renderable::Renderable(_In_ const XMFLOAT4& outputColor)
 	, m_aMaterials()
 	, m_vertexShader()
 	, m_pixelShader()
-	, m_textureFilePath()
 	, m_outputColor(outputColor)
 	, m_world(XMMatrixIdentity())
-	, m_bHasTexture(FALSE)
 {
 }
 
@@ -65,11 +46,12 @@ HRESULT Renderable::initialize(
 	if (FAILED(hr))
 		return hr;
 
-	bd.BindFlags = D3D10_BIND_CONSTANT_BUFFER;
 	bd.ByteWidth = sizeof(CBChangeEveryFrame);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	hr = pDevice->CreateBuffer(&bd, nullptr, m_cbChangeEveryFrame.GetAddressOf());
 	if (FAILED(hr))
 		return hr;
+
 
 	return S_OK;
 }
@@ -126,7 +108,21 @@ const XMFLOAT4& Renderable::GetOutputColor() const
 
 BOOL Renderable::HasTexture() const
 {
-	return m_aMaterials.size() != 0;
+	return m_aMaterials.size() > 0;
+}
+
+const Material& Renderable::GetMaterial(UINT uIndex) const
+{
+	assert(uIndex < m_aMaterials.size());
+
+	return m_aMaterials[uIndex];
+}
+
+const Renderable::BasicMeshEntry& Renderable::GetMesh(UINT uIndex) const
+{
+	assert(uIndex < m_aMeshes.size());
+
+	return m_aMeshes[uIndex];
 }
 
 void Renderable::RotateX(_In_ FLOAT angle)
@@ -144,6 +140,13 @@ void Renderable::RotateZ(_In_ FLOAT angle)
 	m_world *= XMMatrixRotationZ(angle);
 }
 
+void Renderable::RotateYInObjecteCoordinate(_In_ FLOAT angle, _In_ const XMVECTOR& offset)
+{
+	Translate(-offset);
+	RotateY(angle);
+	Translate(offset);
+}
+
 void Renderable::RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw)
 {
 	m_world *= XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
@@ -159,31 +162,12 @@ void Renderable::Translate(_In_ const XMVECTOR& offset)
 	m_world *= XMMatrixTranslationFromVector(offset);
 }
 
-const BasicMeshEntry& Renderable::GetMesh(UINT uIndex)
+UINT Renderable::GetNumMeshes() const
 {
-	assert(uIndex < m_aMeshes.size());
-	return m_aMeshes.at(uIndex);
+	return static_cast<UINT>(m_aMeshes.size());
 }
 
-const Material& Renderable::GetMaterial(UINT uIndex)
+UINT Renderable::GetNumMaterials() const
 {
-	assert(uIndex < m_aMaterials.size());
-	return m_aMaterials.at(uIndex);
-}
-
-UINT Renderable::GetNumMeshes()
-{
-	return m_aMeshes.size();
-}
-
-UINT Renderable::GetNumMaterials()
-{
-	return m_aMaterials.size();
-}
-
-void Renderable::RotateInObjectCoordinate(_In_ FLOAT angle, _In_ const XMVECTOR& offset)
-{
-	m_world *= XMMatrixTranslationFromVector(-offset);
-	m_world *= XMMatrixRotationY(angle);
-	m_world *= XMMatrixTranslationFromVector(offset);
+	return static_cast<UINT>(m_aMaterials.size());
 }

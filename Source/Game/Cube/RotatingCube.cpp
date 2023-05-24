@@ -1,9 +1,5 @@
 #include "Cube/RotatingCube.h"
 
-RotatingCube::RotatingCube(_In_ const std::filesystem::path& textureFilePath)
-    : BaseCube(textureFilePath)
-{
-}
 
 RotatingCube::RotatingCube(_In_ const XMFLOAT4& outputColor)
     : BaseCube(outputColor)

@@ -29,7 +29,7 @@
 #pragma once
 #endif
 
-#include <d3d11.h>
+#include "Common.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4005)

@@ -8,7 +8,6 @@
 class BaseCube : public Renderable
 {
 public:
-    BaseCube(_In_ const std::filesystem::path& textureFilePath);
     BaseCube(_In_ const XMFLOAT4& outputColor);
     ~BaseCube() = default;
 

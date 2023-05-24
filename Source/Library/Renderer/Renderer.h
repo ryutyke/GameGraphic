@@ -8,7 +8,8 @@
 #include "Shader/VertexShader.h"
 #include "Shader/PixelShader.h"
 #include "Camera/Camera.h"
-#include "Character/Character.h"
+
+#include "Model/Model.h"
 
 class Renderer
 {
@@ -18,20 +19,21 @@ public:
 
 	HRESULT InitDevice(_In_ HWND hWnd);
 	HRESULT AddRenderable(_In_ PCWSTR pszRenderableName, _In_ const std::shared_ptr<Renderable>& renderable);
+	HRESULT AddModel(_In_ PCWSTR pszModelName, _In_ const std::shared_ptr<Model>& pModel);
 	HRESULT AddPointLight(_In_ size_t index, _In_ const std::shared_ptr<PointLight>& pPointLight);
 	HRESULT AddVertexShader(_In_ PCWSTR pszVertexShaderName, _In_ const std::shared_ptr<VertexShader>& vertexShader);
 	HRESULT AddPixelShader(_In_ PCWSTR pszPixelShaderName, _In_ const std::shared_ptr<PixelShader>& pixelShader);
 
-	void HandleInput(_In_ const InputDirections& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, const BOOL& mouseRightClick, _In_ FLOAT deltaTime);
+	void HandleInput(_In_ const InputDirections& directions, _In_ FLOAT deltaTime);
 	void Update(_In_ FLOAT deltaTime);
 	void Render();
 
+	HRESULT SetVertexShaderOfModel(_In_ PCWSTR pszModelName, _In_ PCWSTR pszVertexShaderName);
+	HRESULT SetPixelShaderOfModel(_In_ PCWSTR pszModelName, _In_ PCWSTR pszPixelShaderName);
 	HRESULT SetVertexShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_ PCWSTR pszVertexShaderName);
 	HRESULT SetPixelShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_ PCWSTR pszPixelShaderName);
 
 	D3D_DRIVER_TYPE GetDriverType() const;
-
-	void SetCharacter(_In_ const std::shared_ptr<Character>& character);
 
 private:
 	D3D_DRIVER_TYPE m_driverType;
@@ -52,10 +54,10 @@ private:
 	Camera m_camera;
 	XMMATRIX m_projection;
 
+
 	std::unordered_map<PCWSTR, std::shared_ptr<Renderable>> m_renderables;
+	std::unordered_map<PCWSTR, std::shared_ptr<Model>> m_models;
 	std::shared_ptr<PointLight> m_aPointLights[NUM_LIGHTS];
 	std::unordered_map<PCWSTR, std::shared_ptr<VertexShader>> m_vertexShaders;
 	std::unordered_map<PCWSTR, std::shared_ptr<PixelShader>> m_pixelShaders;
-
-	std::shared_ptr<Character> m_character;
 };

@@ -16,12 +16,7 @@ public:
 	LRESULT HandleMessage(_In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam) override;
 
 	const InputDirections& GetDirections() const;
-	const MouseRelativeMovement& GetMouseRelativeMovement() const;
-	const BOOL& GetMouseRightClick() const;
-	void ResetMouseMovement();
 
 private:
 	InputDirections m_directions;
-	MouseRelativeMovement m_mouseRelativeMovement;
-	BOOL m_bMouseRightClick;
 };

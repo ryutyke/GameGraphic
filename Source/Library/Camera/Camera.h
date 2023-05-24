@@ -17,7 +17,7 @@ public:
 	const XMMATRIX& GetView() const;
 	ComPtr<ID3D11Buffer>& GetConstantBuffer();
 
-	virtual void HandleInput(_In_ const InputDirections& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, const BOOL& mouseRightClick, _In_ FLOAT deltaTime);
+	virtual void HandleInput(_In_ const InputDirections& directions, _In_ FLOAT deltaTime);
 	virtual HRESULT Initialize(_In_ ID3D11Device* device, _In_ ID3D11DeviceContext* pImmediateContext);
 	virtual void Update(_In_ FLOAT deltaTime);
 
@@ -35,15 +35,12 @@ protected:
 
 	FLOAT m_moveLeftRight;
 	FLOAT m_moveBackForward;
-	FLOAT m_moveUpDown;
 
 	FLOAT m_movementSpeed;
-	FLOAT m_rotationSpeed;
 
 	XMVECTOR m_cameraForward;
 	XMVECTOR m_cameraRight;
 	XMVECTOR m_cameraUp;
-
 	XMVECTOR m_target;
 
 	XMVECTOR m_eye;

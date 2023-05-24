@@ -12,13 +12,14 @@ Renderer::Renderer()
     , m_renderTargetView()
     , m_depthStencil()
     , m_depthStencilView()
-    , m_camera(XMVectorSet(0.0f, 20.0f, -25.0f, 0.0f))
+    , m_cbChangeOnResize()
+    , m_camera(XMVectorSet(0.0f, 12.0f, -20.0f, 0.0f))
     , m_projection()
     , m_renderables()
+    , m_models()
     , m_aPointLights()
     , m_vertexShaders()
     , m_pixelShaders()
-    , m_character()
 {
 }
 
@@ -247,6 +248,11 @@ HRESULT Renderer::InitDevice(_In_ HWND hWnd)
         it->second->Initialize(m_d3dDevice.Get(), m_immediateContext.Get());
     }
 
+    for (auto it = m_models.begin(); it != m_models.end(); ++it)
+    {
+        it->second->Initialize(m_d3dDevice.Get(), m_immediateContext.Get());
+    }
+
     return S_OK;
 }
 
@@ -258,6 +264,18 @@ HRESULT Renderer::AddRenderable(_In_ PCWSTR pszRenderableName, _In_ const std::s
     }
 
     m_renderables[pszRenderableName] = renderable;
+
+    return S_OK;
+}
+
+HRESULT Renderer::AddModel(_In_ PCWSTR pszModelName, _In_ const std::shared_ptr<Model>& pModel)
+{
+    if (m_models.contains(pszModelName))
+    {
+        return E_FAIL;
+    }
+
+    m_models[pszModelName] = pModel;
 
     return S_OK;
 }
@@ -300,15 +318,19 @@ HRESULT Renderer::AddPixelShader(_In_ PCWSTR pszPixelShaderName, _In_ const std:
     return S_OK;
 }
 
-void Renderer::HandleInput(_In_ const InputDirections& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, const BOOL& mouseRightClick, _In_ FLOAT deltaTime)
+void Renderer::HandleInput(_In_ const InputDirections& directions, _In_ FLOAT deltaTime)
 {
-    m_camera.HandleInput(directions, mouseRelativeMovement, mouseRightClick, deltaTime);
-    m_character->HandleInput(directions, deltaTime);
+    m_camera.HandleInput(directions, deltaTime);
 }
 
 void Renderer::Update(_In_ FLOAT deltaTime)
 {
     for (auto it = m_renderables.begin(); it != m_renderables.end(); ++it)
+    {
+        it->second->Update(deltaTime);
+    }
+
+    for (auto it = m_models.begin(); it != m_models.end(); ++it)
     {
         it->second->Update(deltaTime);
     }
@@ -319,8 +341,6 @@ void Renderer::Update(_In_ FLOAT deltaTime)
     }
 
     m_camera.Update(deltaTime);
-    
-    m_character->Update(deltaTime);
 }
 
 void Renderer::Render()
@@ -377,11 +397,12 @@ void Renderer::Render()
         m_immediateContext->PSSetConstantBuffers(2, 1, it->second->GetConstantBuffer().GetAddressOf());
         m_immediateContext->PSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
 
-        for (UINT i = 0u; i < it->second->GetNumMeshes(); ++i) 
+        for (UINT i = 0u; i < it->second->GetNumMeshes(); ++i)
         {
             UINT uMaterialIndex = it->second->GetMesh(i).uMaterialIndex;
 
             assert(uMaterialIndex < it->second->GetNumMaterials());
+
             // Render a triangle
             if (it->second->GetMaterial(uMaterialIndex).pDiffuse)
             {
@@ -395,29 +416,93 @@ void Renderer::Render()
                     1u,
                     it->second->GetMaterial(uMaterialIndex).pDiffuse->GetSamplerState().GetAddressOf()
                 );
-            } 
-            if (it->second->GetMaterial(uMaterialIndex).pSpecular)
-            { 
-                m_immediateContext->PSSetShaderResources(
-                    1u,
-                    1u,
-                    it->second->GetMaterial(uMaterialIndex).pSpecular->GetTextureResourceView().GetAddressOf()
-                ); 
-                m_immediateContext->PSSetSamplers(
-                    1u,
-                    1u,
-                    it->second->GetMaterial(uMaterialIndex).pSpecular->GetSamplerState().GetAddressOf()
-                ); 
             }
+
+
             m_immediateContext->DrawIndexed(
                 it->second->GetMesh(i).uNumIndices,
                 it->second->GetMesh(i).uBaseIndex,
-                static_cast <INT>(it->second->GetMesh(i).uBaseVertex)
+                static_cast<INT>(it->second->GetMesh(i).uBaseVertex)
             );
         }
     }
 
-    // Present the information rendered to the back buffer to the front buffer (the screen)
+    /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+    TODO: animation render ±¸Çö.
+    -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+    for (auto it = m_models.begin(); it != m_models.end(); ++it)
+    {
+        // Set vertex buffer
+        UINT aStrides[2] = { static_cast<UINT>(sizeof(SimpleVertex)), static_cast<UINT>(sizeof(AnimationData)) };
+        UINT aOffsets[2] = { 0u, 0u };
+        ID3D11Buffer* aBuffers[2]
+        {
+            it->second->GetVertexBuffer().Get(),
+            it->second->GetAnimationBuffer().Get()
+        };
+
+        m_immediateContext->IASetVertexBuffers(0u, 2u, aBuffers, aStrides, aOffsets);
+
+        // Set index buffer
+        m_immediateContext->IASetIndexBuffer(it->second->GetIndexBuffer().Get(), DXGI_FORMAT_R16_UINT, 0);
+
+        // Set the input layout
+        m_immediateContext->IASetInputLayout(it->second->GetVertexLayout().Get());
+
+        // Update variables
+        CBChangeEveryFrame cb =
+        {
+            .World = XMMatrixTranspose(it->second->GetWorldMatrix()),
+            .OutputColor = it->second->GetOutputColor(),
+        };
+        m_immediateContext->UpdateSubresource(it->second->GetConstantBuffer().Get(), 0u, nullptr, &cb, 0u, 0u);
+
+        CBSkinning* cbSkinning = reinterpret_cast<CBSkinning*>(malloc(sizeof(CBSkinning)));
+        for (UINT i = 0u; i < it->second->GetBoneTransforms().size(); ++i)
+        {
+            cbSkinning->BoneTransforms[i] = XMMatrixTranspose(it->second->GetBoneTransforms().at(i));
+        }
+        m_immediateContext->UpdateSubresource(it->second->GetSkinningConstantBuffer().Get(), 0u, nullptr, cbSkinning, 0u, 0u);
+
+        m_immediateContext->VSSetShader(it->second->GetVertexShader().Get(), nullptr, 0u);
+        m_immediateContext->VSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+        m_immediateContext->VSSetConstantBuffers(1, 1, m_cbChangeOnResize.GetAddressOf());
+        m_immediateContext->VSSetConstantBuffers(2, 1, it->second->GetConstantBuffer().GetAddressOf());
+        m_immediateContext->VSSetConstantBuffers(4, 1, it->second->GetSkinningConstantBuffer().GetAddressOf());
+        m_immediateContext->PSSetShader(it->second->GetPixelShader().Get(), nullptr, 0u);
+        m_immediateContext->PSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+        m_immediateContext->PSSetConstantBuffers(2, 1, it->second->GetConstantBuffer().GetAddressOf());
+        m_immediateContext->PSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
+
+        for (UINT i = 0u; i < it->second->GetNumMeshes(); ++i)
+        {
+            UINT uMaterialIndex = it->second->GetMesh(i).uMaterialIndex;
+
+            assert(uMaterialIndex < it->second->GetNumMaterials());
+
+            // Render a triangle
+            if (it->second->GetMaterial(uMaterialIndex).pDiffuse)
+            {
+                m_immediateContext->PSSetShaderResources(
+                    0u,
+                    1u,
+                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetTextureResourceView().GetAddressOf()
+                );
+                m_immediateContext->PSSetSamplers(
+                    0u,
+                    1u,
+                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetSamplerState().GetAddressOf()
+                );
+            }
+
+            m_immediateContext->DrawIndexed(
+                it->second->GetMesh(i).uNumIndices,
+                it->second->GetMesh(i).uBaseIndex,
+                static_cast<INT>(it->second->GetMesh(i).uBaseVertex)
+            );
+        }
+    }
+
     m_swapChain->Present(0, 0);
 }
 
@@ -445,12 +530,31 @@ HRESULT Renderer::SetPixelShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_
     return S_OK;
 }
 
+HRESULT Renderer::SetVertexShaderOfModel(_In_ PCWSTR pszModelName, _In_ PCWSTR pszVertexShaderName)
+{
+    if (!m_models.contains(pszModelName) || !m_vertexShaders.contains(pszVertexShaderName))
+    {
+        return E_FAIL;
+    }
+
+    m_models[pszModelName]->SetVertexShader(m_vertexShaders[pszVertexShaderName]);
+
+    return S_OK;
+}
+
+HRESULT Renderer::SetPixelShaderOfModel(_In_ PCWSTR pszModelName, _In_ PCWSTR pszPixelShaderName)
+{
+    if (!m_models.contains(pszModelName) || !m_pixelShaders.contains(pszPixelShaderName))
+    {
+        return E_FAIL;
+    }
+
+    m_models[pszModelName]->SetPixelShader(m_pixelShaders[pszPixelShaderName]);
+
+    return S_OK;
+}
+
 D3D_DRIVER_TYPE Renderer::GetDriverType() const
 {
     return m_driverType;
-}
-
-void Renderer::SetCharacter(_In_ const std::shared_ptr<Character>& character)
-{
-    m_character = character;
 }

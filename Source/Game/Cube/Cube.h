@@ -7,7 +7,6 @@
 class Cube :public BaseCube
 {
 public:
-    Cube(_In_ const std::filesystem::path& textureFilePath);
     Cube(_In_ const XMFLOAT4& outputColor);
 
 

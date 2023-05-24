@@ -5,58 +5,33 @@
 #include "Shader/PixelShader.h"
 #include "Shader/VertexShader.h"
 
-#include "Texture/Texture.h"
-
 #include "Renderer/DataTypes.h"
 
-static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
-
-struct BasicMeshEntry {
-	BasicMeshEntry()
-		: uNumIndices(0u)
-		, uBaseVertex(0u)
-		, uBaseIndex(0u)
-		, uMaterialIndex(INVALID_MATERIAL)
-	{}
-	UINT uNumIndices;
-	UINT uBaseVertex;
-	UINT uBaseIndex;
-	UINT uMaterialIndex;
-};
+#include "Texture/Material.h"
 
 class Renderable
 {
+public:
+	static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
+
 protected:
-	const virtual SimpleVertex* getVertices() const = 0;
-	virtual const WORD* getIndices() const = 0;
+	struct BasicMeshEntry
+	{
+		BasicMeshEntry()
+			: uNumIndices(0u)
+			, uBaseVertex(0u)
+			, uBaseIndex(0u)
+			, uMaterialIndex(INVALID_MATERIAL)
+		{}
 
-	HRESULT initialize(
-		_In_ ID3D11Device* pDevice,
-		_In_ ID3D11DeviceContext* pImmediateContext
-	);
-
-	ComPtr<ID3D11Buffer> m_vertexBuffer;
-	ComPtr<ID3D11Buffer> m_indexBuffer;
-	ComPtr<ID3D11Buffer> m_cbChangeEveryFrame;
-
-	std::vector<BasicMeshEntry> m_aMeshes;
-	std::vector<Material> m_aMaterials;
-	/*ComPtr<ID3D11ShaderResourceView> m_textureRV;
-	ComPtr<ID3D11SamplerState> m_samplerLinear;*/
-
-	std::shared_ptr<VertexShader> m_vertexShader;
-	std::shared_ptr<PixelShader> m_pixelShader;
-	std::filesystem::path m_textureFilePath;
-
-	XMFLOAT4 m_outputColor;
-	XMMATRIX m_world;
-	BOOL m_bHasTexture;
+		UINT uNumIndices;
+		UINT uBaseVertex;
+		UINT uBaseIndex;
+		UINT uMaterialIndex;
+	};
 
 public:
-	Renderable(_In_ const std::filesystem::path& textureFilePath);
 	Renderable(_In_ const XMFLOAT4& outputColor);
-	Renderable(const Renderable& other) = delete;
-	Renderable(Renderable&& other) = delete;
 	Renderable() = default;
 	virtual ~Renderable() = default;
 
@@ -78,9 +53,13 @@ public:
 	const XMFLOAT4& GetOutputColor() const;
 	BOOL HasTexture() const;
 
+	const Material& GetMaterial(UINT uIndex) const;
+	const BasicMeshEntry& GetMesh(UINT uIndex) const;
+
 	void RotateX(_In_ FLOAT angle);
 	void RotateY(_In_ FLOAT angle);
 	void RotateZ(_In_ FLOAT angle);
+	void RotateYInObjecteCoordinate(_In_ FLOAT angle, _In_ const XMVECTOR& offset);
 	void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
 	void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
 	void Translate(_In_ const XMVECTOR& offset);
@@ -88,11 +67,27 @@ public:
 	virtual UINT GetNumVertices() const = 0;
 	virtual UINT GetNumIndices() const = 0;
 
-	const BasicMeshEntry& GetMesh(UINT uIndex);
-	const Material& GetMaterial(UINT uIndex);
+	UINT GetNumMeshes() const;
+	UINT GetNumMaterials() const;
+protected:
+	const virtual SimpleVertex* getVertices() const = 0;
+	virtual const WORD* getIndices() const = 0;
 
-	UINT GetNumMeshes();
-	UINT GetNumMaterials();
+	HRESULT initialize(
+		_In_ ID3D11Device* pDevice, 
+		_In_ ID3D11DeviceContext* pImmediateContext
+	);
 
-	void RotateInObjectCoordinate(_In_ FLOAT angle, _In_ const XMVECTOR& offset);
+	ComPtr<ID3D11Buffer> m_vertexBuffer;
+	ComPtr<ID3D11Buffer> m_indexBuffer;
+	ComPtr<ID3D11Buffer> m_cbChangeEveryFrame;
+
+	std::vector<BasicMeshEntry> m_aMeshes;
+	std::vector<Material> m_aMaterials;
+
+	std::shared_ptr<VertexShader> m_vertexShader;
+	std::shared_ptr<PixelShader> m_pixelShader;
+
+	XMFLOAT4 m_outputColor;
+	XMMATRIX m_world;
 };

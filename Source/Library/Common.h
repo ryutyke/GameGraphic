@@ -20,7 +20,5 @@
 #include <filesystem>
 #include <unordered_map>
 
-#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded)
-
 using namespace Microsoft::WRL;
 using namespace DirectX;

@@ -61,12 +61,6 @@
     <Filter Include="헤더 파일\Model">
       <UniqueIdentifier>{338da780-9f13-4530-b551-3e8cbb88d868}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Character">
-      <UniqueIdentifier>{fe40fc9d-7223-4fa7-9986-79d5a2ce83ae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\Character">
-      <UniqueIdentifier>{38658ac9-5797-4009-8693-8d91823691f4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -117,8 +111,11 @@
     <ClInclude Include="Model\Model.h">
       <Filter>헤더 파일\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Character.h">
-      <Filter>헤더 파일\Character</Filter>
+    <ClInclude Include="Shader\SkinningVertexShader.h">
+      <Filter>헤더 파일\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\Material.h">
+      <Filter>헤더 파일\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -164,8 +161,11 @@
     <ClCompile Include="Model\Model.cpp">
       <Filter>소스 파일\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Character.cpp">
-      <Filter>소스 파일\Character</Filter>
+    <ClCompile Include="Shader\SkinningVertexShader.cpp">
+      <Filter>소스 파일\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\Material.cpp">
+      <Filter>소스 파일\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

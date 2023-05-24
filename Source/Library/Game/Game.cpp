@@ -50,8 +50,7 @@ INT Game::Run()
 
             FLOAT deltaTime = static_cast<FLOAT>(elapsedMsc.QuadPart) / 1000000.0f;
 
-            m_renderer->HandleInput(m_mainWindow->GetDirections(), m_mainWindow->GetMouseRelativeMovement(), m_mainWindow->GetMouseRightClick(), deltaTime);
-            m_mainWindow->ResetMouseMovement();
+            m_renderer->HandleInput(m_mainWindow->GetDirections(), deltaTime);
             m_renderer->Update(deltaTime);
             m_renderer->Render();
         }
