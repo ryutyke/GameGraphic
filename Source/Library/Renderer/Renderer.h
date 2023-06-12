@@ -60,4 +60,6 @@ private:
 	std::shared_ptr<PointLight> m_aPointLights[NUM_LIGHTS];
 	std::unordered_map<PCWSTR, std::shared_ptr<VertexShader>> m_vertexShaders;
 	std::unordered_map<PCWSTR, std::shared_ptr<PixelShader>> m_pixelShaders;
+
+	std::shared_ptr<Texture> m_invalidTexture;
 };

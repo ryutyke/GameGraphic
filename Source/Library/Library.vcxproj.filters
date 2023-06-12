@@ -55,9 +55,6 @@
     <Filter Include="헤더 파일\Renderer">
       <UniqueIdentifier>{ee2efc68-0a89-4ba2-97fe-a1a30e5b697b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Model">
-      <UniqueIdentifier>{71ae5962-4b58-4763-b3e1-716cfa9a3bc3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\Model">
       <UniqueIdentifier>{338da780-9f13-4530-b551-3e8cbb88d868}</UniqueIdentifier>
     </Filter>
@@ -157,9 +154,6 @@
     </ClCompile>
     <ClCompile Include="Texture\WICTextureLoader.cpp">
       <Filter>소스 파일\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="Model\Model.cpp">
-      <Filter>소스 파일\Model</Filter>
     </ClCompile>
     <ClCompile Include="Shader\SkinningVertexShader.cpp">
       <Filter>소스 파일\Shader</Filter>

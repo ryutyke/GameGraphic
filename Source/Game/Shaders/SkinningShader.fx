@@ -61,6 +61,7 @@ PS_INPUT VS(VS_INPUT input)
 	PS_INPUT output = (PS_INPUT)0;
 	matrix skinTransform = (matrix)0;
 
+	//BoneIndices에 저장된 4개의 Bone의 BoneTransforms 의해서 vertex값 변화됨.
 	skinTransform += BoneTransforms[input.BoneIndices.x] * input.BoneWeights.x;
 	skinTransform += BoneTransforms[input.BoneIndices.y] * input.BoneWeights.y;
 	skinTransform += BoneTransforms[input.BoneIndices.z] * input.BoneWeights.z;

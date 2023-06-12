@@ -14,6 +14,12 @@ struct SimpleVertex
 	XMFLOAT3 Normal;
 };
 
+struct NormalData
+{
+	XMFLOAT3 Tangent;
+	XMFLOAT3 Bitangent;
+};
+
 struct InstanceData
 {
 	XMMATRIX Transformation;
@@ -36,6 +42,7 @@ struct CBChangeEveryFrame
 {
 	XMMATRIX World;
 	XMFLOAT4 OutputColor;
+	BOOL HasNormalMap;
 };
 struct CBLights
 {

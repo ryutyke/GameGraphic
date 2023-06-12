@@ -13,7 +13,12 @@ HRESULT BaseCube::Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContex
 
     m_aMeshes.push_back(basicMeshEntry);
 
-    m_aMaterials.push_back(Material());
+    if (HasTexture() > 0)
+    {
+        HRESULT hr = SetMaterialOfMesh(0, 0);
+        if (FAILED(hr))
+            return hr;
+    }
 
     return initialize(pDevice, pImmediateContext);
 }

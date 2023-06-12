@@ -13,13 +13,14 @@ Renderer::Renderer()
     , m_depthStencil()
     , m_depthStencilView()
     , m_cbChangeOnResize()
-    , m_camera(XMVectorSet(0.0f, 12.0f, -20.0f, 0.0f))
+    , m_camera(XMVectorSet(0.0f, 4.0f, -10.0f, 0.0f))
     , m_projection()
     , m_renderables()
     , m_models()
     , m_aPointLights()
     , m_vertexShaders()
     , m_pixelShaders()
+    , m_invalidTexture(std::make_shared<Texture>(L"../../Data/Cube/InvalidTexture.png"))
 {
 }
 
@@ -253,6 +254,12 @@ HRESULT Renderer::InitDevice(_In_ HWND hWnd)
         it->second->Initialize(m_d3dDevice.Get(), m_immediateContext.Get());
     }
 
+    hr = m_invalidTexture->Initialize(m_d3dDevice.Get(), m_immediateContext.Get());
+    if (FAILED(hr))
+    {
+        return hr;
+    }
+
     return S_OK;
 }
 
@@ -369,9 +376,15 @@ void Renderer::Render()
     for (auto it = m_renderables.begin(); it != m_renderables.end(); ++it)
     {
         // Set vertex buffer
-        UINT uStride = sizeof(SimpleVertex);
-        UINT uOffset = 0;
-        m_immediateContext->IASetVertexBuffers(0u, 1u, it->second->GetVertexBuffer().GetAddressOf(), &uStride, &uOffset);
+        UINT aStrides[2] = { sizeof(SimpleVertex), sizeof(NormalData) };
+        UINT aOffsets[2] = { 0, 0 };
+        ID3D11Buffer* aBuffers[2]
+        {
+            it->second->GetVertexBuffer().Get(),
+            it->second->GetNormalBuffer().Get()
+        };
+
+        m_immediateContext->IASetVertexBuffers(0u, 2u, aBuffers, aStrides, aOffsets);
 
         // Set index buffer
         m_immediateContext->IASetIndexBuffer(it->second->GetIndexBuffer().Get(), DXGI_FORMAT_R16_UINT, 0);
@@ -383,7 +396,8 @@ void Renderer::Render()
         CBChangeEveryFrame cb =
         {
             .World = XMMatrixTranspose(it->second->GetWorldMatrix()),
-            .OutputColor = it->second->GetOutputColor()
+            .OutputColor = it->second->GetOutputColor(),
+            .HasNormalMap = it->second->HasNormalMap()
         };
         m_immediateContext->UpdateSubresource(it->second->GetConstantBuffer().Get(), 0u, nullptr, &cb, 0u, 0u);
 
@@ -403,97 +417,43 @@ void Renderer::Render()
 
             assert(uMaterialIndex < it->second->GetNumMaterials());
 
-            // Render a triangle
-            if (it->second->GetMaterial(uMaterialIndex).pDiffuse)
+            ID3D11ShaderResourceView* aViews[2]
             {
-                m_immediateContext->PSSetShaderResources(
-                    0u,
-                    1u,
-                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetTextureResourceView().GetAddressOf()
-                );
-                m_immediateContext->PSSetSamplers(
-                    0u,
-                    1u,
-                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetSamplerState().GetAddressOf()
-                );
+                m_invalidTexture->GetTextureResourceView().Get(),
+                m_invalidTexture->GetTextureResourceView().Get()
+            };
+
+            ID3D11SamplerState* aSamplers[2]
+            {
+                m_invalidTexture->GetSamplerState().Get(),
+                m_invalidTexture->GetSamplerState().Get()
+            };
+
+            if (uMaterialIndex != Renderable::INVALID_MATERIAL)
+            {
+                if (it->second->GetMaterial(uMaterialIndex)->pDiffuse)
+                {
+                    aViews[0] = it->second->GetMaterial(uMaterialIndex)->pDiffuse->GetTextureResourceView().Get();
+                    aSamplers[0] = it->second->GetMaterial(uMaterialIndex)->pDiffuse->GetSamplerState().Get();
+                }
+                if (it->second->GetMaterial(uMaterialIndex)->pNormal)
+                {
+                    aViews[1] = it->second->GetMaterial(uMaterialIndex)->pNormal->GetTextureResourceView().Get();
+                    aSamplers[1] = it->second->GetMaterial(uMaterialIndex)->pNormal->GetSamplerState().Get();
+                }
             }
 
-
-            m_immediateContext->DrawIndexed(
-                it->second->GetMesh(i).uNumIndices,
-                it->second->GetMesh(i).uBaseIndex,
-                static_cast<INT>(it->second->GetMesh(i).uBaseVertex)
+            m_immediateContext->PSSetShaderResources(
+                0u,
+                2u,
+                aViews
             );
-        }
-    }
 
-    /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
-    TODO: animation render ±¸Çö.
-    -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-    for (auto it = m_models.begin(); it != m_models.end(); ++it)
-    {
-        // Set vertex buffer
-        UINT aStrides[2] = { static_cast<UINT>(sizeof(SimpleVertex)), static_cast<UINT>(sizeof(AnimationData)) };
-        UINT aOffsets[2] = { 0u, 0u };
-        ID3D11Buffer* aBuffers[2]
-        {
-            it->second->GetVertexBuffer().Get(),
-            it->second->GetAnimationBuffer().Get()
-        };
-
-        m_immediateContext->IASetVertexBuffers(0u, 2u, aBuffers, aStrides, aOffsets);
-
-        // Set index buffer
-        m_immediateContext->IASetIndexBuffer(it->second->GetIndexBuffer().Get(), DXGI_FORMAT_R16_UINT, 0);
-
-        // Set the input layout
-        m_immediateContext->IASetInputLayout(it->second->GetVertexLayout().Get());
-
-        // Update variables
-        CBChangeEveryFrame cb =
-        {
-            .World = XMMatrixTranspose(it->second->GetWorldMatrix()),
-            .OutputColor = it->second->GetOutputColor(),
-        };
-        m_immediateContext->UpdateSubresource(it->second->GetConstantBuffer().Get(), 0u, nullptr, &cb, 0u, 0u);
-
-        CBSkinning* cbSkinning = reinterpret_cast<CBSkinning*>(malloc(sizeof(CBSkinning)));
-        for (UINT i = 0u; i < it->second->GetBoneTransforms().size(); ++i)
-        {
-            cbSkinning->BoneTransforms[i] = XMMatrixTranspose(it->second->GetBoneTransforms().at(i));
-        }
-        m_immediateContext->UpdateSubresource(it->second->GetSkinningConstantBuffer().Get(), 0u, nullptr, cbSkinning, 0u, 0u);
-
-        m_immediateContext->VSSetShader(it->second->GetVertexShader().Get(), nullptr, 0u);
-        m_immediateContext->VSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
-        m_immediateContext->VSSetConstantBuffers(1, 1, m_cbChangeOnResize.GetAddressOf());
-        m_immediateContext->VSSetConstantBuffers(2, 1, it->second->GetConstantBuffer().GetAddressOf());
-        m_immediateContext->VSSetConstantBuffers(4, 1, it->second->GetSkinningConstantBuffer().GetAddressOf());
-        m_immediateContext->PSSetShader(it->second->GetPixelShader().Get(), nullptr, 0u);
-        m_immediateContext->PSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
-        m_immediateContext->PSSetConstantBuffers(2, 1, it->second->GetConstantBuffer().GetAddressOf());
-        m_immediateContext->PSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
-
-        for (UINT i = 0u; i < it->second->GetNumMeshes(); ++i)
-        {
-            UINT uMaterialIndex = it->second->GetMesh(i).uMaterialIndex;
-
-            assert(uMaterialIndex < it->second->GetNumMaterials());
-
-            // Render a triangle
-            if (it->second->GetMaterial(uMaterialIndex).pDiffuse)
-            {
-                m_immediateContext->PSSetShaderResources(
-                    0u,
-                    1u,
-                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetTextureResourceView().GetAddressOf()
-                );
-                m_immediateContext->PSSetSamplers(
-                    0u,
-                    1u,
-                    it->second->GetMaterial(uMaterialIndex).pDiffuse->GetSamplerState().GetAddressOf()
-                );
-            }
+            m_immediateContext->PSSetSamplers(
+                0u,
+                2u,
+                aSamplers
+            );
 
             m_immediateContext->DrawIndexed(
                 it->second->GetMesh(i).uNumIndices,
